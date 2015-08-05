@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Tabula.Rasa</string>
+    <string name="preview">preview</string>
+    <string name="edit">edit</string>
+    <string name="iam007_login">login</string>
+    <string name="iam007_login_hint">Email Or Phone Number</string>
+    <string name="iam007_password_hint">Password</string>
+    <string name="iam007_forget_password"><u>忘记密码</u></string>
+
+    <string name="login">登录</string>
+    <string name="login_hint_username">输入手机号码</string>
+    <string name="login_hint_password">输入密码</string>
+    <string name="login_hint_username_is_null">用户名为空，请输入用户名！</string>
+    <string name="login_hint_password_is_null">密码为空，请输入密码！</string>
+    <string name="login_hint_waiting">正在登录&#8230;</string>
+
+    <string name="register">注册</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="iam007_activity_horizontal_edge_gap">15dp</dimen>
+    <dimen name="iam007_activity_horizontal_item_gap">10dp</dimen>
+    <dimen name="iam007_activity_vertical_item_gap">12dp</dimen>
+</resources>

@@ -1,0 +1,135 @@
+apply plugin: 'com.android.application'
+
+/**
+ * 获取当前git的版本号
+ */
+def getGitVersion() {
+    return "git rev-parse --short HEAD".execute().text.trim()
+}
+
+/**
+ * 获取当前svn版本号
+ */
+def getSvnRevision() {
+    new ByteArrayOutputStream().withStream { os ->
+        def result = exec {
+            executable = 'svn'
+            args = ['info']
+            standardOutput = os
+        }
+        def outputAsString = os.toString()
+        def matchLastChangedRev = outputAsString =~ /Last Changed Rev: (\d+)/
+
+        ext.svnRev = "${matchLastChangedRev[0][1]}".toInteger()
+    }
+
+    return svnRev
+}
+
+android {
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
+
+    defaultConfig {
+        applicationId "cn.iam007.coser"
+        minSdkVersion 14
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+
+        // 添加到BuildConfig.java中加入git的版本号
+        buildConfigField "String", "GIT_REVISION", "\"${getGitVersion()}\""
+
+        // 添加PlaceHolder定义，用于定义Manifest中的渠道变量
+        manifestPlaceholders = [CHANNEL_VALUE: "Offical"]
+    }
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../base/proguard-rules.pro', 'proguard-rules.pro'
+        }
+
+        applicationVariants.all { variant ->
+
+            def outputFileName = (String) (project.archivesBaseName +
+                    "-" + variant.flavorName +                  // 渠道
+                    "-" + variant.buildType.name +              // 编译类型
+                    "-" + variant.mergedFlavor.versionName +    // 程序版本号
+                    "-" + getGitVersion());                     // 代码版本号
+
+
+            if (variant.buildType.name == "release") {
+                outputFileName = outputFileName + "-" + (new Date().format('yyyy_MM_dd_HH_mm_ss'));
+            }
+
+            variant.outputs.each { output ->
+                output.outputFile = new File(
+                        output.outputFile.parent, outputFileName + ".apk");
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    productFlavors {
+        Offical {
+            // 官方
+        }
+
+        baidu {
+            // 百度助手
+        }
+
+        baidu_91 {
+            // 91助手
+        }
+
+        hiapk {
+            // android市场
+        }
+
+        goolge {
+            // google play市场
+        }
+
+        /*
+        _360 {
+
+        }
+        */
+    }
+
+    // 给渠道变量赋值
+    productFlavors.all { flavor ->
+        flavor.manifestPlaceholders = [CHANNEL_VALUE: name]
+    }
+
+    //LeanCloud为了解决部分第三方库重复打包了META-INF的问题
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:design:22.2.0'
+    compile 'com.balysv:material-ripple:1.0.2'
+
+    compile 'com.android.support:recyclerview-v7:22.1.1'
+
+    compile project(":base")
+}
