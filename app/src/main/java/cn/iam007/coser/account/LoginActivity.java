@@ -11,10 +11,8 @@ import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import cn.iam007.base.BaseActivity;
-import cn.iam007.base.utils.ViewUtils;
 import cn.iam007.coser.R;
 
 /**
@@ -52,7 +50,6 @@ public class LoginActivity extends BaseActivity {
                 }
             }
         });
-        ViewUtils.applyRippleEffect(view);
     }
 
     private boolean validateInput() {
@@ -98,10 +95,11 @@ public class LoginActivity extends BaseActivity {
         }
 
         @Override
-        public void onFailed(String msg) {
+        public void onFailed(int code, String msg) {
             long time = System.currentTimeMillis();
             Message message = mHandler.obtainMessage(LOGIN_FAILED);
             message.obj = msg;
+            message.arg1 = code;
             if (time - mStartLoginTime > 750) {
                 mHandler.sendMessage(message);
             } else {
@@ -114,9 +112,8 @@ public class LoginActivity extends BaseActivity {
         dismissProgressDialog();
     }
 
-    private void doLoginFailed(String msg) {
+    private void doLoginFailed(int code, String msg) {
         dismissProgressDialog();
-//        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         showErrorHint(msg);
     }
 
@@ -132,7 +129,7 @@ public class LoginActivity extends BaseActivity {
                     break;
 
                 case LOGIN_FAILED:
-                    doLoginFailed((String) msg.obj);
+                    doLoginFailed(msg.arg1, (String) msg.obj);
                     break;
             }
             return false;

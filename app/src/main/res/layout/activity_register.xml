@@ -34,10 +34,18 @@
                 android:hint="@string/login_hint_username"
                 android:inputType="phone"
                 android:maxLength="100"
+                android:maxLines="1"
                 android:paddingLeft="@dimen/iam007_activity_horizontal_item_gap"
                 android:textColor="@color/iam007_edittext_color"
                 android:textColorHint="@color/iam007_edittext_hint_color"
                 android:textSize="18sp"/>
+
+            <Button
+                android:id="@+id/get_verify_code"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/register_get_verify_code"
+                android:visibility="gone"/>
         </LinearLayout>
 
         <View
@@ -70,7 +78,7 @@
                 android:layout_weight="1"
                 android:background="@null"
                 android:hint="@string/login_hint_password"
-                android:inputType="textPassword"
+                android:inputType="text"
                 android:maxLength="30"
                 android:paddingLeft="@dimen/iam007_activity_horizontal_item_gap"
                 android:textColor="@color/iam007_edittext_color"
@@ -97,16 +105,16 @@
 
             <TextView
                 android:id="@+id/error_hint"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="left"
                 android:layout_marginLeft="@dimen/iam007_activity_horizontal_edge_gap"
                 android:layout_marginRight="@dimen/iam007_activity_horizontal_edge_gap"
+                android:layout_weight="1"
                 android:maxLines="1"
                 android:paddingRight="3dp"
                 android:textColor="@color/iam007_red_color_bg"
-                android:textSize="14sp"
-                android:visibility="invisible"/>
+                android:textSize="14sp"/>
 
             <TextView
                 android:id="@+id/forget"
@@ -121,19 +129,20 @@
                 android:paddingRight="3dp"
                 android:text="@string/iam007_forget_password"
                 android:textColor="@color/iam007_red_color_bg"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:visibility="invisible"/>
 
         </LinearLayout>
 
 
         <Button
-            android:id="@+id/login"
+            android:id="@+id/sign_up"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/iam007_activity_horizontal_edge_gap"
             android:layout_marginRight="@dimen/iam007_activity_horizontal_edge_gap"
             android:background="@drawable/iam007_red_drawable_bg"
-            android:text="@string/login">
+            android:text="@string/register">
         </Button>
 
     </LinearLayout>
