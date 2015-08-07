@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import cn.iam007.base.BaseActivity;
 import cn.iam007.coser.R;
+import cn.iam007.coser.test.HalfActivity;
 
 /**
  * Created by Administrator on 2015/7/1.
@@ -36,6 +37,7 @@ public class LoginActivity extends BaseActivity {
         mPassword = (EditText) findViewById(R.id.password);
         mErrorHint = (TextView) findViewById(R.id.error_hint);
         mForgetPassword = findViewById(R.id.forget);
+        mForgetPassword.setOnClickListener(mForgetPasswordListener);
 
         View view = findViewById(R.id.login);
         view.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +112,10 @@ public class LoginActivity extends BaseActivity {
 
     private void doLoginSucc() {
         dismissProgressDialog();
+//        finish();
+        Intent intent = new Intent();
+        intent.setClass(this, HalfActivity.class);
+        startActivity(intent);
     }
 
     private void doLoginFailed(int code, String msg) {
@@ -117,8 +123,20 @@ public class LoginActivity extends BaseActivity {
         showErrorHint(msg);
     }
 
+    private void doRequestResetPasswordSucc() {
+        dismissProgressDialog();
+        AccountManager.getInstance().startVerify(mUsername.getText().toString(), true);
+    }
+
+    private void doRequestResetPasswordFailed(int code, String msg) {
+        dismissProgressDialog();
+        showErrorHint(msg);
+    }
+
     private final static int LOGIN_SUCC = 0x01;
     private final static int LOGIN_FAILED = 0x02;
+    private final static int REQUEST_RESET_PASSWORD_SUCC = 0x03;
+    private final static int REQUEST_RESET_PASSWORD_FAILED = 0x04;
 
     private Handler mHandler = new Handler(new Handler.Callback() {
         @Override
@@ -131,10 +149,39 @@ public class LoginActivity extends BaseActivity {
                 case LOGIN_FAILED:
                     doLoginFailed(msg.arg1, (String) msg.obj);
                     break;
+
+                case REQUEST_RESET_PASSWORD_SUCC:
+                    doRequestResetPasswordSucc();
+                    break;
+
+                case REQUEST_RESET_PASSWORD_FAILED:
+                    doRequestResetPasswordFailed(msg.arg1, (String) msg.obj);
+                    break;
             }
             return false;
         }
     });
+
+    private View.OnClickListener mForgetPasswordListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            showProgressDialog();
+            AccountManager.getInstance().requestPasswordReset(mUsername.getText().toString(),
+                    new AccountManager.RequestPasswordResetCallback() {
+                        @Override
+                        public void onSucc() {
+                            mHandler.sendEmptyMessage(REQUEST_RESET_PASSWORD_SUCC);
+                        }
+
+                        @Override
+                        public void onFailed(String msg) {
+                            Message message = mHandler.obtainMessage(REQUEST_RESET_PASSWORD_FAILED);
+                            message.obj = msg;
+                            mHandler.sendMessage(message);
+                        }
+                    });
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -152,5 +199,15 @@ public class LoginActivity extends BaseActivity {
                 break;
         }
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 }

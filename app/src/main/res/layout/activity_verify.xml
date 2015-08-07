@@ -9,7 +9,56 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingBottom="@dimen/iam007_activity_horizontal_edge_gap"
-        android:paddingTop="@dimen/iam007_activity_horizontal_edge_gap">
+        android:paddingTop="@dimen/iam007_activity_horizontal_edge_gap"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/new_password_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/iam007_activity_horizontal_edge_gap"
+            android:layout_marginRight="@dimen/iam007_activity_horizontal_edge_gap"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:scaleType="fitXY"
+                android:src="@mipmap/iam007_account_avatar"/>
+
+            <EditText
+                android:id="@+id/new_password"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="@string/verify_hint_input_new_password"
+                android:inputType="number"
+                android:maxLength="@integer/password_max_length"
+                android:maxLines="1"
+                android:paddingLeft="@dimen/iam007_activity_horizontal_item_gap"
+                android:textColor="@color/iam007_edittext_color"
+                android:textColorHint="@color/iam007_edittext_hint_color"
+                android:textSize="18sp"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"/>
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/new_password_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_marginBottom="@dimen/iam007_activity_vertical_item_gap"
+            android:layout_marginLeft="@dimen/iam007_activity_horizontal_edge_gap"
+            android:layout_marginRight="@dimen/iam007_activity_horizontal_edge_gap"
+            android:layout_marginTop="@dimen/iam007_activity_vertical_item_gap"
+            android:background="@color/iam007_divider"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:layout_width="match_parent"

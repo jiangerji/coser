@@ -22,9 +22,14 @@ import cn.iam007.coser.R;
  */
 public class VerifyActivity extends BaseActivity {
 
+    // 进行验证的电话号码
     public final static String KEY_VERIFY_PHONE_NUMBER = "KEY_VERIFY_PHONE_NUMBER";
 
+    // 上次请求短信的时间
     private final static String KEY_LAST_REQUEST_VERIFY_TIME = "KEY_LAST_REQUEST_VERIFY_TIME";
+
+    // 是否是验证重置密码
+    public final static String KEY_VERIFY_PASSWORD_RESET = "KEY_VERIFY_PASSWORD_RESET";
 
     private Button mGetVerifyCodeBtn;
     private EditText mVerifyCodeET;
@@ -34,6 +39,11 @@ public class VerifyActivity extends BaseActivity {
     private String mPhoneNumber;
 
     public long mStartLoginTime;
+
+    private boolean mIsVerifyResetPassword = false;
+    private View mResetPasswordContainer;
+    private View mResetPasswordDivider;
+    private EditText mNewPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,20 +65,42 @@ public class VerifyActivity extends BaseActivity {
                 if (validateInput()) {
                     mStartLoginTime = System.currentTimeMillis();
                     showProgressDialog(R.string.login_hint_waiting);
-                    String code = mVerifyCodeET.getText().toString();
-                    AccountManager.getInstance().verifySmsCode(code, mCallback);
+                    startVerify();
                 }
             }
         });
         mHint = (TextView) findViewById(R.id.error_hint);
+
+        mResetPasswordContainer = findViewById(R.id.new_password_container);
+        mResetPasswordDivider = findViewById(R.id.new_password_divider);
+        mNewPassword = (EditText) findViewById(R.id.new_password);
+
         Intent intent = getIntent();
         if (intent != null) {
             mPhoneNumber = intent.getStringExtra(KEY_VERIFY_PHONE_NUMBER);
+            mIsVerifyResetPassword = intent.getBooleanExtra(KEY_VERIFY_PASSWORD_RESET, false);
         }
+
+        showResetPasswordArea(mIsVerifyResetPassword);
 
         mLastRequestTime =
                 SharedPreferenceUtil.getLong(KEY_LAST_REQUEST_VERIFY_TIME, 0L);
         requestVerifyCode();
+    }
+
+    private void startVerify() {
+        String code = mVerifyCodeET.getText().toString();
+        if (mIsVerifyResetPassword) {
+            String newPassword = mNewPassword.getText().toString();
+            if (TextUtils.isEmpty(newPassword)) {
+                showHint(getString(R.string.verify_hint_input_new_password));
+            } else {
+                AccountManager.getInstance().resetPassword(newPassword, code,
+                        mResetPasswordCallback);
+            }
+        } else {
+            AccountManager.getInstance().verifySmsCode(code, mCallback);
+        }
     }
 
     private long mLastRequestTime = 0;
@@ -152,6 +184,33 @@ public class VerifyActivity extends BaseActivity {
         }
     };
 
+    private AccountManager.ResetPasswordCallback mResetPasswordCallback =
+            new AccountManager.ResetPasswordCallback() {
+
+                @Override
+                public void onSucc() {
+                    long time = System.currentTimeMillis();
+                    if (time - mStartLoginTime > 750) {
+                        mHandler.sendEmptyMessage(VERIFY_SUCC);
+                    } else {
+                        mHandler.sendEmptyMessageDelayed(VERIFY_SUCC,
+                                750 - (time - mStartLoginTime));
+                    }
+                }
+
+                @Override
+                public void onFailed(String msg) {
+                    long time = System.currentTimeMillis();
+                    Message message = mHandler.obtainMessage(VERIFY_FAILED);
+                    message.obj = msg;
+                    if (time - mStartLoginTime > 750) {
+                        mHandler.sendMessage(message);
+                    } else {
+                        mHandler.sendMessageDelayed(message, 750 - (time - mStartLoginTime));
+                    }
+                }
+            };
+
     private void doVerifySucc() {
         dismissProgressDialog();
         finish();
@@ -230,4 +289,14 @@ public class VerifyActivity extends BaseActivity {
             return false;
         }
     });
+
+    private void showResetPasswordArea(boolean show) {
+        if (show) {
+            mResetPasswordContainer.setVisibility(View.VISIBLE);
+            mResetPasswordDivider.setVisibility(View.VISIBLE);
+        } else {
+            mResetPasswordContainer.setVisibility(View.GONE);
+            mResetPasswordDivider.setVisibility(View.GONE);
+        }
+    }
 }

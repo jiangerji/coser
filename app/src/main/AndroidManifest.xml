@@ -45,6 +45,15 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <!-- Debug使用 -->
+        <activity
+            android:name=".test.HalfActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            android:label="@string/activity_verify_title"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Dialog">
+        </activity>
+
         <meta-data
             android:name="leancloud"
             android:value="${CHANNEL_VALUE}"

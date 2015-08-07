@@ -10,6 +10,7 @@ import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.LogInCallback;
 import com.avos.avoscloud.RequestMobileCodeCallback;
 import com.avos.avoscloud.SignUpCallback;
+import com.avos.avoscloud.UpdatePasswordCallback;
 
 import cn.iam007.base.utils.LogUtil;
 import cn.iam007.coser.Iam007Application;
@@ -308,12 +309,144 @@ public class AccountManager {
         return result;
     }
 
+    /**
+     * 打开手机验证界面
+     *
+     * @param phone
+     */
     public void startVerify(String phone) {
+        startVerify(phone, false);
+    }
+
+    /**
+     * 打开手机验证界面
+     *
+     * @param phone         手机号码
+     * @param resetPassword 是否是重置密码验证界面
+     */
+    public void startVerify(String phone, boolean resetPassword) {
         Application application = Iam007Application.getApplication();
         Intent intent = new Intent();
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setClass(application, VerifyActivity.class);
         intent.putExtra(VerifyActivity.KEY_VERIFY_PHONE_NUMBER, phone);
+        intent.putExtra(VerifyActivity.KEY_VERIFY_PASSWORD_RESET, resetPassword);
         application.startActivity(intent);
+    }
+
+    /**
+     * 请求重置密码
+     *
+     * @param phone
+     * @param callback
+     */
+    public void requestPasswordReset(String phone, final RequestPasswordResetCallback callback) {
+        if (TextUtils.isEmpty(phone)) {
+            if (callback != null) {
+                callback.onFailed(
+                        ResourceManager.getString(R.string.request_password_reset_phone_is_null));
+            }
+            return;
+        }
+
+        AVUser.requestPasswordResetBySmsCodeInBackground(phone, new RequestMobileCodeCallback() {
+            @Override
+            public void done(AVException e) {
+                if (e == null) {
+                    // 获取验证码成功
+                    LogUtil.d("Reset password request succ!");
+                    if (callback != null) {
+                        callback.onSucc();
+                    }
+                } else {
+                    // 获取验证码失败
+                    LogUtil.d(
+                            "Reset password request failed:" + e.getCode() + " " + e.getMessage());
+                    if (callback != null) {
+                        callback.onFailed(handleException(null, e));
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * 获取验证回调接口
+     */
+    public interface RequestPasswordResetCallback {
+        /**
+         * 注册成功
+         */
+        void onSucc();
+
+        /**
+         * 注册失败
+         *
+         * @param msg 失败原因
+         */
+        void onFailed(String msg);
+    }
+
+    /**
+     * 重置为新密码
+     *
+     * @param newPassword
+     * @param code
+     * @param callback
+     */
+    public void resetPassword(String newPassword, String code,
+                              final ResetPasswordCallback callback) {
+        if (TextUtils.isEmpty(newPassword)) {
+            if (callback != null) {
+                callback.onFailed(
+                        ResourceManager.getString(R.string.verify_hint_input_new_password));
+            }
+            return;
+        }
+
+        if (TextUtils.isEmpty(code)) {
+            if (callback != null) {
+                callback.onFailed(
+                        ResourceManager.getString(R.string.verify_hint_code_is_null));
+            }
+            return;
+        }
+
+        AVUser.resetPasswordBySmsCodeInBackground(code, newPassword, new UpdatePasswordCallback() {
+            @Override
+            public void done(AVException e) {
+                if (e == null) {
+                    // 获取验证码成功
+                    LogUtil.d("Reset password succ!");
+                    if (callback != null) {
+                        callback.onSucc();
+                    }
+                } else {
+                    // 获取验证码失败
+                    LogUtil.d(
+                            "Reset password failed:" + e.getCode() + " " + e.getMessage());
+                    if (callback != null) {
+                        callback.onFailed(handleException(null, e));
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * 获取验证回调接口
+     */
+    public interface ResetPasswordCallback {
+        /**
+         * 注册成功
+         */
+        void onSucc();
+
+        /**
+         * 注册失败
+         *
+         * @param msg 失败原因
+         */
+        void onFailed(String msg);
     }
 }

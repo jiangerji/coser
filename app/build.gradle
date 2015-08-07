@@ -65,11 +65,11 @@ android {
 
             if (variant.buildType.name == "release") {
                 outputFileName = outputFileName + "-" + (new Date().format('yyyy_MM_dd_HH_mm_ss'));
-            }
 
-            variant.outputs.each { output ->
-                output.outputFile = new File(
-                        output.outputFile.parent, outputFileName + ".apk");
+                variant.outputs.each { output ->
+                    output.outputFile = new File(
+                            output.outputFile.parent, outputFileName + ".apk");
+                }
             }
         }
     }

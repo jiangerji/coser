@@ -93,7 +93,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingBottom="12dp"
+            android:paddingBottom="0dp"
             android:paddingTop="0dp">
 
             <TextView
@@ -117,7 +117,8 @@
                 android:layout_marginLeft="@dimen/iam007_activity_horizontal_edge_gap"
                 android:layout_marginRight="@dimen/iam007_activity_horizontal_edge_gap"
                 android:gravity="right"
-                android:paddingLeft="5dp"
+                android:paddingBottom="12dp"
+                android:paddingLeft="15dp"
                 android:paddingRight="3dp"
                 android:text="@string/iam007_forget_password"
                 android:textColor="@color/iam007_red_color_bg"
