@@ -1,13 +1,7 @@
 package cn.iam007.mediapicker.ui;
 
-import java.io.File;
-import java.util.ArrayList;
-
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -21,6 +15,10 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.util.ArrayList;
+
+import cn.iam007.base.BaseActivity;
 import cn.iam007.mediapicker.MediaPickerConstants;
 import cn.iam007.mediapicker.R;
 import cn.iam007.mediapicker.data.MediaType;
@@ -29,12 +27,11 @@ import cn.iam007.mediapicker.ui.adapter.MediaPagerAdapter;
 import cn.iam007.mediapicker.util.ByteUtil;
 
 
-public class MediaPreviewActivity extends Activity implements
+public class MediaPreviewActivity extends BaseActivity implements
         MediaPagerAdapter.OnMediaTapListener, MediaPagerAdapter.OnVideoClickedListener,
-        OnPageChangeListener,
-        OnClickListener {
+        OnPageChangeListener, OnClickListener {
 
-    private ActionBar mActionBar;
+    private android.support.v7.app.ActionBar mActionBar;
     private ViewPager mViewPager;
     private TextView mSizeTv;
     private CheckBox mIndexCb;
@@ -44,17 +41,12 @@ public class MediaPreviewActivity extends Activity implements
     private MediaPagerAdapter mPagerAdapter;
     private int mPosition;
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_preview);
 
-        mActionBar = getActionBar();
-        mActionBar.setDisplayHomeAsUpEnabled(true);
-        mActionBar.setDisplayShowHomeEnabled(false);
-        mActionBar.setDisplayUseLogoEnabled(false);
-        mActionBar.setDisplayShowTitleEnabled(true);
+        mActionBar = getSupportActionBar();
 
         mViewPager = (ViewPager) findViewById(R.id.view_pager);
         mSizeTv = (TextView) findViewById(R.id.size_tv);
@@ -71,7 +63,7 @@ public class MediaPreviewActivity extends Activity implements
         mPagerAdapter.setOnVideoClickedListener(this);
         mViewPager.setAdapter(mPagerAdapter);
         mViewPager.setCurrentItem(mPosition);
-        mViewPager.setOnPageChangeListener(this);
+        mViewPager.addOnPageChangeListener(this);
 
         mIndexCb.setOnClickListener(this);
 
@@ -81,7 +73,7 @@ public class MediaPreviewActivity extends Activity implements
     }
 
     private void updateTitle() {
-        mActionBar.setTitle(String.format("预览(%1$d/%2$d)", mPosition + 1,
+        mActionBar.setTitle(getString(R.string.mp_preview_format_two, mPosition + 1,
                 mMedias.size()));
     }
 
@@ -102,12 +94,12 @@ public class MediaPreviewActivity extends Activity implements
 
     private void updateMenu(MenuItem item) {
         if (mSelectedMedias.size() == 0) {
-            item.setTitle(getColoredText("确定", "#bebebe"));
+            item.setTitle(getColoredText(getString(R.string.mp_confirm), "#bebebe"));
             item.setEnabled(false);
             return;
         }
 
-        String title = String.format("确定(%1$d/%2$d)", mSelectedMedias.size(),
+        String title = getString(R.string.mp_confirm_format, mSelectedMedias.size(),
                 MediaPickerConstants.MAX_MEDIA_LIMIT);
         item.setTitle(getColoredText(title, "#ec5d0f"));
         item.setEnabled(true);
@@ -126,7 +118,7 @@ public class MediaPreviewActivity extends Activity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_media_picker, menu);
+        getMenuInflater().inflate(R.menu.mp_menu_media_picker, menu);
         return true;
     }
 
@@ -152,17 +144,17 @@ public class MediaPreviewActivity extends Activity implements
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        // fix android formatted title bug
-        // http://stackoverflow.com/questions/7658725/android-java-lang-illegalargumentexception-invalid-payload-item-type/
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
-                && item.getTitleCondensed() != null) {
-            item.setTitleCondensed(item.getTitleCondensed().toString());
-        }
-
-        return super.onMenuItemSelected(featureId, item);
-    }
+//    @Override
+//    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+//        // fix android formatted title bug
+//        // http://stackoverflow.com/questions/7658725/android-java-lang-illegalargumentexception-invalid-payload-item-type/
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
+//                && item.getTitleCondensed() != null) {
+//            item.setTitleCondensed(item.getTitleCondensed().toString());
+//        }
+//
+//        return super.onMenuItemSelected(featureId, item);
+//    }
 
     @Override
     public void onMediaTap(View view, float x, float y, int position) {
@@ -220,8 +212,8 @@ public class MediaPreviewActivity extends Activity implements
                         * ByteUtil.MB) {
                     Toast.makeText(
                             this,
-                            String.format(
-                                    "视频大小超出%1$dMB",
+                            getString(
+                                    R.string.mp_video_size_too_big,
                                     MediaPickerConstants.SELECTED_VIDEO_SIZE_IN_MB),
                             Toast.LENGTH_SHORT).show();
                     mIndexCb.setChecked(false);
@@ -237,7 +229,7 @@ public class MediaPreviewActivity extends Activity implements
                 if ((MediaPickerConstants.SELECTED_MEDIA_COUNT == MediaPickerConstants.MAX_MEDIA_LIMIT)) {
                     Toast.makeText(
                             this,
-                            String.format("最多只能选择%1$d个文件",
+                            getString(R.string.mp_file_count_overflow_hint,
                                     MediaPickerConstants.SELECTED_MEDIA_COUNT),
                             Toast.LENGTH_SHORT).show();
                     mIndexCb.setChecked(false);

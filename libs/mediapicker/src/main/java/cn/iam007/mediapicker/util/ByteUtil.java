@@ -14,7 +14,7 @@ public class ByteUtil {
 		} else if (size < GB) {// <1g
 			return String.format("%.1f MB", size / MB / 1.0f);
 		} else {
-			return String.format("%.1f TB", size / GB / 1.0f);
+			return String.format("%.1f GB", size / GB / 1.0f);
 		}
 	}
 }
