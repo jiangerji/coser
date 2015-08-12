@@ -17,8 +17,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:text="拍摄照片"
+        android:text="@string/mp_camera_item_text"
         android:textColor="@color/mp_btn_text_black_color_normal"
-        android:textSize="14sp"/>
+        android:textSize="12sp"/>
 
 </LinearLayout>

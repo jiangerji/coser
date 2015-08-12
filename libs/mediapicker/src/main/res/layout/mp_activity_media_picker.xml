@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:background="@color/mp_activity_bg">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -20,8 +21,13 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/mp_toolbar"
         android:background="@android:color/transparent"
-        android:paddingTop="@dimen/media_tool_bar_height"
+        android:paddingTop="@dimen/mp_media_tool_bar_height"
         android:visibility="gone">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/mp_media_toolbar_bg_color"/>
 
         <fragment
             android:id="@+id/album_fragment"
@@ -33,7 +39,7 @@
     <RelativeLayout
         android:id="@+id/mp_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/media_tool_bar_height"
+        android:layout_height="@dimen/mp_media_tool_bar_height"
         android:layout_alignParentBottom="true"
         android:background="@color/mp_media_toolbar_bg_color">
 

@@ -139,7 +139,7 @@ public class MediaFragment extends Fragment implements AsyncMediaHelper.OnMedias
             List<Media> mediaSet = new ArrayList<Media>();
 
             if (MediaPickerConstants.SHOW_CAMERA) {
-                mediaSet.add(new Media("camera://camera"));
+                mediaSet.add(new Media(Media.TYPE_CAMERA));
             }
             mediaSet.addAll(medias);
 
@@ -151,11 +151,10 @@ public class MediaFragment extends Fragment implements AsyncMediaHelper.OnMedias
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position,
-                            long id) {
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Media media = mMediaAdapter.getItem(position);
 
-        if (media.getData().startsWith("camera://camera")) {
+        if (media.getData().startsWith(Media.TYPE_CAMERA)) {
             openCamera();
         } else {
             ArrayList<Media> medias = new ArrayList<Media>();
@@ -175,8 +174,7 @@ public class MediaFragment extends Fragment implements AsyncMediaHelper.OnMedias
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         fileUri = getOutputMediaFileUri(MediaType.MEDIA_TYPE_IMAGE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-        startActivityForResult(intent,
-                MediaPickerConstants.CAPTURE_IMAGE_REQUEST_CODE);
+        startActivityForResult(intent, MediaPickerConstants.CAPTURE_IMAGE_REQUEST_CODE);
     }
 
     private Uri getOutputMediaFileUri(int type) {
@@ -207,10 +205,8 @@ public class MediaFragment extends Fragment implements AsyncMediaHelper.OnMedias
     private File getMediaStorageDir() {
         File storageDir = null;
 
-        if (Environment.MEDIA_MOUNTED.equals(Environment
-                .getExternalStorageState())) {
-            storageDir = getAlbumStorageDirFactory().getAlbumStorageDir(
-                    getAlbumName());
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            storageDir = getAlbumStorageDirFactory().getAlbumStorageDir(getAlbumName());
 
             if (storageDir != null) {
                 if (!storageDir.mkdirs()) {
@@ -238,28 +234,24 @@ public class MediaFragment extends Fragment implements AsyncMediaHelper.OnMedias
 
     private void launchPreviewActivity(ArrayList<Media> medias,
                                        ArrayList<Media> selectedMedias, int position) {
-        Intent intent =
-                new Intent(getActivity(), MediaPreviewActivity.class);
+        Intent intent = new Intent(getActivity(), MediaPreviewActivity.class);
         Bundle bundle = new Bundle();
         bundle.putSerializable("medias", medias);
         bundle.putSerializable("selectedMedias", selectedMedias);
         bundle.putInt("position", position);
         intent.putExtras(bundle);
-        startActivityForResult(intent,
-                MediaPickerConstants.PREVIEW_ALBUM_MEDIAS_REQUEST_CODE);
+        startActivityForResult(intent, MediaPickerConstants.PREVIEW_ALBUM_MEDIAS_REQUEST_CODE);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == MediaPickerConstants.CAPTURE_IMAGE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                String fileUriString = fileUri.toString()
-                        .replaceFirst("file:///", "/").trim();
-                Media media = new Media(fileUriString,
-                        MediaType.MEDIA_TYPE_IMAGE);
+                String fileUriString = fileUri.toString().replaceFirst(
+                        "file:///", "/").trim();
+                Media media = new Media(fileUriString, MediaType.MEDIA_TYPE_IMAGE);
                 mSelectedMedias.clear();
                 mSelectedMedias.add(media);
 
@@ -268,14 +260,14 @@ public class MediaFragment extends Fragment implements AsyncMediaHelper.OnMedias
             }
         } else if (requestCode == MediaPickerConstants.PREVIEW_ALBUM_MEDIAS_REQUEST_CODE) {
             if (resultCode == MediaPickerConstants.PREVIEW_MEDIAS_BACK_RESULT_CODE) {
-                mSelectedMedias = (ArrayList<Media>) data
-                        .getSerializableExtra("selectedMedias");
+                mSelectedMedias = (ArrayList<Media>) data.getSerializableExtra(
+                        "selectedMedias");
                 mMediaAdapter.setSelectedMedias(mSelectedMedias);
 
                 mCallback.onMediaSelected(mSelectedMedias);
             } else if (resultCode == Activity.RESULT_OK) {
-                mSelectedMedias = (ArrayList<Media>) data
-                        .getSerializableExtra("selectedMedias");
+                mSelectedMedias = (ArrayList<Media>) data.getSerializableExtra(
+                        "selectedMedias");
 
                 setCallback(Activity.RESULT_OK);
                 getActivity().finish();
@@ -296,17 +288,16 @@ public class MediaFragment extends Fragment implements AsyncMediaHelper.OnMedias
     }
 
     @Override
-    public void onItemChecked(View parent, int position) {
+    public void onItemChecked(boolean isChecked, int position) {
         Media media = mMediaAdapter.getItem(position);
+        boolean contains = contains(media);
 
-        if (!contains(media)) {
+        if (!contains && isChecked) {
             if (media.getMediaType() == MediaType.MEDIA_TYPE_VIDEO) {
                 if (media.getSize() > MediaPickerConstants.SELECTED_VIDEO_SIZE_IN_MB
                         * ByteUtil.MB) {
-                    Toast.makeText(
-                            getActivity(),
-                            String.format(
-                                    "视频大小超出%1$dMB",
+                    Toast.makeText(getActivity(),
+                            getActivity().getString(R.string.mp_video_size_too_big,
                                     MediaPickerConstants.SELECTED_VIDEO_SIZE_IN_MB),
                             Toast.LENGTH_SHORT).show();
                     return;
@@ -321,9 +312,8 @@ public class MediaFragment extends Fragment implements AsyncMediaHelper.OnMedias
                 mMediaAdapter.resetItemState(mMediaGridView, position);
             } else {
                 if ((MediaPickerConstants.SELECTED_MEDIA_COUNT == MediaPickerConstants.MAX_MEDIA_LIMIT)) {
-                    Toast.makeText(
-                            getActivity(),
-                            String.format("最多只能选择%1$d个文件",
+                    Toast.makeText(getActivity(),
+                            getActivity().getString(R.string.mp_file_count_overflow_hint,
                                     MediaPickerConstants.SELECTED_MEDIA_COUNT),
                             Toast.LENGTH_SHORT).show();
                     return;
@@ -332,7 +322,7 @@ public class MediaFragment extends Fragment implements AsyncMediaHelper.OnMedias
 
             mSelectedMedias.add(media);
             MediaPickerConstants.SELECTED_MEDIA_COUNT++;
-        } else {
+        } else if (contains && (!isChecked)) {
             mSelectedMedias.remove(media);
             MediaPickerConstants.SELECTED_MEDIA_COUNT--;
         }

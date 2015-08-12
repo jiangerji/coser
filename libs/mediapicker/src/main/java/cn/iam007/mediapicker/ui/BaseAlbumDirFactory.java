@@ -8,12 +8,12 @@ import cn.iam007.mediapicker.ui.AlbumStorageDirFactory;
 
 public final class BaseAlbumDirFactory implements AlbumStorageDirFactory {
 
-    private static final String CAMERA_DIR = "/dcim/";
+    //    private static final String CAMERA_DIR = "/dcim/";
 
     @Override
     public File getAlbumStorageDir(String albumName) {
-        return new File(Environment.getExternalStorageDirectory() + CAMERA_DIR
-                + albumName);
+        return new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
+                albumName);
     }
 
 }

@@ -8,9 +8,7 @@ public final class FroyoAlbumDirFactory implements AlbumStorageDirFactory {
 
     @Override
     public File getAlbumStorageDir(String albumName) {
-        return new File(
-                Environment
-                        .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                albumName);
+        return new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), albumName);
     }
 }

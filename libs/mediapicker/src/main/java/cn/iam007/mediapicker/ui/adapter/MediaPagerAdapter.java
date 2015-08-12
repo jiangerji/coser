@@ -112,7 +112,7 @@ public class MediaPagerAdapter extends PagerAdapter {
 	}
 
 	private void loadImage(ImageView imageView, String url) {
-		Glide.with(mContext).load(url).error(R.drawable.ic_image_load_failed)
+		Glide.with(mContext).load(url).error(R.drawable.mp_image_load_failed)
 				.into(imageView);
 	}
 

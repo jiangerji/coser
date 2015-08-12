@@ -6,6 +6,8 @@ public class Media implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	public final static String TYPE_CAMERA = "camera://camera";
+
 	private String data;
 	private int mediaType;
 	private long dateTaken;

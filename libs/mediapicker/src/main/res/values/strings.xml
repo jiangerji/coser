@@ -15,4 +15,8 @@
     <string name="mp_pic_all">所有图片</string>
     <string name="mp_video_size_too_big">视频大小超出%1$dMB</string>
     <string name="mp_file_count_overflow_hint">最多只能选择%1$d个文件</string>
+
+    <string name="mp_file_count_format">%1$d张</string>
+
+    <string name="mp_camera_item_text">拍摄照片</string>
 </resources>

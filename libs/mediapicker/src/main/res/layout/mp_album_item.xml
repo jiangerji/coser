@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/album_item_height"
-    android:gravity="center_vertical" >
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/mp_album_item_height"
+                android:gravity="center_vertical">
 
     <RelativeLayout
         android:id="@+id/cover_layout"
-        android:layout_width="@dimen/album_item_cover_height"
-        android:layout_height="@dimen/album_item_cover_height"
-        android:layout_centerVertical="true" >
+        android:layout_width="@dimen/mp_album_item_cover_height"
+        android:layout_height="@dimen/mp_album_item_cover_height"
+        android:layout_centerVertical="true">
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/bg_album_border"
-            android:contentDescription="@string/app_name" />
+            android:background="@drawable/mp_bg_album_border"
+            android:contentDescription="@string/app_name"/>
 
         <ImageView
             android:id="@+id/cover_iv"
@@ -23,7 +23,7 @@
             android:layout_marginBottom="4dp"
             android:layout_marginRight="4dp"
             android:contentDescription="@string/app_name"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -32,25 +32,26 @@
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/cover_layout"
         android:gravity="center_vertical"
-        android:paddingLeft="8dp" >
+        android:paddingLeft="8dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/name_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"
-                android:textSize="16sp" />
+                android:textSize="16sp"/>
 
             <TextView
                 android:id="@+id/size_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp" />
+                android:textColor="@color/mp_btn_text_black_color_normal"
+                android:textSize="14sp"/>
         </LinearLayout>
 
         <ImageView
@@ -60,7 +61,7 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:contentDescription="@string/app_name"
-            android:src="@drawable/ic_album_choice" />
+            android:src="@drawable/ic_album_choice"/>
     </RelativeLayout>
 
 </RelativeLayout>

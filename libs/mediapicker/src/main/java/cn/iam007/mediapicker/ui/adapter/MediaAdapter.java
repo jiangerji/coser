@@ -8,7 +8,8 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.CheckedTextView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -17,6 +18,8 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
+import cn.iam007.base.utils.PlatformUtils;
+import cn.iam007.base.utils.ViewUtils;
 import cn.iam007.mediapicker.R;
 import cn.iam007.mediapicker.data.MediaType;
 import cn.iam007.mediapicker.model.Media;
@@ -44,8 +47,9 @@ public class MediaAdapter extends BaseAdapter {
     }
 
     public void setMedias(List<Media> medias) {
-        if (medias == null)
+        if (medias == null) {
             return;
+        }
 
         mMedias = medias;
         notifyDataSetChanged();
@@ -56,31 +60,35 @@ public class MediaAdapter extends BaseAdapter {
     }
 
     public void setSelectedMedias(List<Media> selectedMedias) {
-        if (selectedMedias == null)
+        if (selectedMedias == null) {
             return;
+        }
 
         mSelectedMedias = selectedMedias;
         notifyDataSetChanged();
     }
 
     private boolean contains(Media media) {
-        if (mSelectedMedias == null)
+        if (mSelectedMedias == null) {
             return false;
+        }
 
         return mSelectedMedias.contains(media);
     }
 
     @Override
     public int getCount() {
-        if (mMedias == null)
+        if (mMedias == null) {
             return 0;
+        }
         return mMedias.size();
     }
 
     @Override
     public Media getItem(int position) {
-        if (mMedias == null)
+        if (mMedias == null) {
             return null;
+        }
         return mMedias.get(position);
     }
 
@@ -105,41 +113,34 @@ public class MediaAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(final int position, View convertView,
-                        final ViewGroup parent) {
+    public View getView(final int position, View convertView, final ViewGroup parent) {
         int viewType = getItemViewType(position);
+        int width = (mWidth - 2 * getPixelSize(R.dimen.mp_media_item_horizontal_spacing)) / 3;
 
         if (viewType == TYPE_CAMERA) {
-            CameraViewHolder holder;
             if (convertView == null) {
-                convertView = mInflater.inflate(R.layout.media_camera_item,
-                        parent, false);
+                convertView = mInflater.inflate(R.layout.mp_media_camera_item, parent, false);
                 AbsListView.LayoutParams params = (AbsListView.LayoutParams) convertView
                         .getLayoutParams();
-                int width = (mWidth - 2 * getPixelSize(R.dimen.media_item_horizontal_spacing)) / 3;
                 params.width = width;
                 params.height = width;
                 convertView.setLayoutParams(params);
 
-                holder = new CameraViewHolder(convertView);
-                convertView.setTag(holder);
-            } else {
-                holder = (CameraViewHolder) convertView.getTag();
+                PlatformUtils.applyFonts(mContext, convertView);
             }
         } else {
             MediaViewHolder holder;
             if (convertView == null) {
-                convertView = mInflater.inflate(R.layout.media_item, parent,
-                        false);
+                convertView = mInflater.inflate(R.layout.mp_media_item, parent, false);
                 AbsListView.LayoutParams params = (AbsListView.LayoutParams) convertView
                         .getLayoutParams();
-                int width = (mWidth - 2 * getPixelSize(R.dimen.media_item_horizontal_spacing)) / 3;
                 params.width = width;
                 params.height = width;
                 convertView.setLayoutParams(params);
 
                 holder = new MediaViewHolder(convertView);
                 convertView.setTag(holder);
+                PlatformUtils.applyFonts(mContext, convertView);
             } else {
                 holder = (MediaViewHolder) convertView.getTag();
             }
@@ -147,22 +148,34 @@ public class MediaAdapter extends BaseAdapter {
             final Media media = mMedias.get(position);
 
             setImage(holder.photoIv, media.getData());
-            setIndex(holder.indexTv, contains(media));
+            setIndex(holder, contains(media));
             setText(holder.sizeTv, ByteUtil.format(media.getSize()));
             setVisibility(holder.indexTv, true);
-            setVisibility(holder.videoLayout,
-                    media.getMediaType() == MediaType.MEDIA_TYPE_VIDEO);
+            setVisibility(holder.videoLayout, media.getMediaType() == MediaType.MEDIA_TYPE_VIDEO);
 
-            final View view = convertView;
+//            final View view = convertView;
+            final CheckBox view = holder.indexTv;
             holder.indexTv.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mOnItemCheckedListener == null)
+                    if (mOnItemCheckedListener == null) {
                         return;
+                    }
 
-                    mOnItemCheckedListener.onItemChecked(view, position);
+                    mOnItemCheckedListener.onItemChecked(view.isChecked(), position);
                 }
             });
+
+//            holder.indexTv.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//                @Override
+//                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                    if (mOnItemCheckedListener == null) {
+//                        return;
+//                    }
+//
+//                    mOnItemCheckedListener.onItemChecked(isChecked, position);
+//                }
+//            });
         }
 
         return convertView;
@@ -185,7 +198,8 @@ public class MediaAdapter extends BaseAdapter {
     }
 
     private void loadImage(ImageView imageView, String url) {
-        Glide.with(mContext).load(url).error(R.drawable.ic_image_load_failed)
+        Glide.with(mContext).load(url).error(R.drawable.mp_image_load_failed).placeholder(
+                R.drawable.mp_image_load_failed)
                 .into(imageView);
     }
 
@@ -193,8 +207,13 @@ public class MediaAdapter extends BaseAdapter {
         textView.setText(text);
     }
 
-    private void setIndex(CheckedTextView indexTv, boolean isChecked) {
-        indexTv.setChecked(isChecked);
+    private void setIndex(MediaViewHolder holder, boolean isChecked) {
+        holder.indexTv.setChecked(isChecked);
+        if (isChecked) {
+            holder.checkedMask.setVisibility(View.VISIBLE);
+        } else {
+            holder.checkedMask.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void setVisibility(View view, boolean visibility) {
@@ -209,7 +228,7 @@ public class MediaAdapter extends BaseAdapter {
             if (view.getTag() instanceof MediaViewHolder) {
                 MediaViewHolder holder = (MediaViewHolder) view.getTag();
                 Media media = getItem(position);
-                setIndex(holder.indexTv, contains(media));
+                setIndex(holder, contains(media));
             }
         }
     }
@@ -221,37 +240,29 @@ public class MediaAdapter extends BaseAdapter {
             View view = parent.getChildAt(i - firstVisiblePosition);
             if (view.getTag() instanceof MediaViewHolder) {
                 MediaViewHolder holder = (MediaViewHolder) view.getTag();
-                setIndex(holder.indexTv, false);
+                setIndex(holder, false);
             }
-        }
-    }
-
-    static class CameraViewHolder {
-        ImageView cameraIv;
-        TextView cameraTv;
-
-        public CameraViewHolder(View view) {
-            cameraIv = (ImageView) view.findViewById(R.id.camera_iv);
-            cameraTv = (TextView) view.findViewById(R.id.camera_tv);
         }
     }
 
     static class MediaViewHolder {
         ImageView photoIv;
-        CheckedTextView indexTv;
+        CheckBox indexTv;
         RelativeLayout videoLayout;
         TextView sizeTv;
+        View checkedMask;
 
         public MediaViewHolder(View view) {
             photoIv = (ImageView) view.findViewById(R.id.photo_iv);
-            indexTv = (CheckedTextView) view.findViewById(R.id.index_tv);
+            indexTv = (CheckBox) view.findViewById(R.id.index_tv);
             videoLayout = (RelativeLayout) view.findViewById(R.id.video_layout);
             sizeTv = (TextView) view.findViewById(R.id.size_tv);
+            checkedMask = view.findViewById(R.id.checked_mask);
         }
     }
 
     public interface OnItemCheckedListener {
-        void onItemChecked(View parent, int position);
+        void onItemChecked(boolean checked, int position);
     }
 
 }

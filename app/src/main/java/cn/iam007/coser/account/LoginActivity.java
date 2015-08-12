@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import cn.iam007.base.BaseActivity;
 import cn.iam007.coser.R;
-import cn.iam007.coser.test.HalfActivity;
 
 /**
  * Created by Administrator on 2015/7/1.
@@ -113,9 +112,7 @@ public class LoginActivity extends BaseActivity {
     private void doLoginSucc() {
         dismissProgressDialog();
 //        finish();
-        Intent intent = new Intent();
-        intent.setClass(this, HalfActivity.class);
-        startActivity(intent);
+        // TODO: 登录成功
     }
 
     private void doLoginFailed(int code, String msg) {

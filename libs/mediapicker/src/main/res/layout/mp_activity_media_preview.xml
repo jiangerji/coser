@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout android:id="@+id/root"
+                xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -9,10 +10,11 @@
         android:layout_height="match_parent"/>
 
     <RelativeLayout
+        android:id="@+id/mp_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/media_tool_bar_height"
+        android:layout_height="@dimen/mp_media_tool_bar_height"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/media_tool_bar_bg">
+        android:background="@color/mp_media_toolbar_bg_color">
 
         <TextView
             android:id="@+id/size_tv"
@@ -22,8 +24,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:gravity="center"
-            android:text="218.0 MB"
-            android:textColor="@color/mp_btn_text_black_color_normal"
+            android:textColor="@color/mp_btn_text_color"
             android:textSize="16sp"/>
 
         <CheckBox
@@ -36,7 +37,7 @@
             android:layout_marginRight="16dp"
             android:button="@drawable/selector_check_bg"
             android:text="@string/mp_choose"
-            android:textColor="@color/mp_btn_text_black_color_normal"
+            android:textColor="@color/mp_btn_text_color"
             android:textSize="16sp"/>
     </RelativeLayout>
 

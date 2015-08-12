@@ -4,13 +4,22 @@
     <color name="color1_orange_normal">#ec5d0f</color>
     <!--<color name="color6_black_normal">#363332</color>-->
     <color name="color7_gold_normal">#dfd4b9</color>
-    <color name="color8_white_normal">#faf9f5</color>
-    <color name="color9_white_normal">#ffffff</color>
+    <!--<color name="color8_white_normal">#faf9f5</color>-->
+    <!--<color name="color9_white_normal">#ffffff</color>-->
+
+    <color name="mp_black_bg">#191919</color>
+
+    <color name="mp_activity_bg">@color/mp_black_bg</color>
+
+    <color name="mp_media_item_white_bg">#faf9f5</color>
+    <color name="mp_media_item_checked_mask">#66000000</color>
+
+    <color name="mp_album_white_bg">#faf9f5</color>
 
     <color name="mp_media_toolbar_bg_color">#66000000</color>
     <color name="mp_media_toolbar_horizontal_divider">#bebebe</color>
 
-    <color name="mp_btn_text_black_color_normal">#363332</color>
+    <color name="mp_btn_text_black_color_normal">#666666</color>
     <color name="mp_btn_text_white_color_normal">#faf9f5</color>
     <color name="mp_btn_text_white_color_pressed">#dfd4b9</color>
     <color name="mp_btn_text_white_color_disable">#bebebe</color>

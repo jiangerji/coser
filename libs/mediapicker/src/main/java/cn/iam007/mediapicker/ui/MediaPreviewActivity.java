@@ -2,16 +2,22 @@ package cn.iam007.mediapicker.ui;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +25,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import cn.iam007.base.BaseActivity;
+import cn.iam007.base.utils.LogUtil;
 import cn.iam007.mediapicker.MediaPickerConstants;
 import cn.iam007.mediapicker.R;
 import cn.iam007.mediapicker.data.MediaType;
@@ -31,10 +38,15 @@ public class MediaPreviewActivity extends BaseActivity implements
         MediaPagerAdapter.OnMediaTapListener, MediaPagerAdapter.OnVideoClickedListener,
         OnPageChangeListener, OnClickListener {
 
-    private android.support.v7.app.ActionBar mActionBar;
+    public final static String KEY_MEDIAS = "medias";
+    public final static String KEY_SELECTED_MEDIAS = "selectedMedias";
+    public final static String KEY_POSITION = "position";
+
+    private Toolbar mActionBar;
     private ViewPager mViewPager;
     private TextView mSizeTv;
     private CheckBox mIndexCb;
+    private View mMediaToolbar;
 
     private ArrayList<Media> mMedias;
     private ArrayList<Media> mSelectedMedias;
@@ -44,19 +56,27 @@ public class MediaPreviewActivity extends BaseActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_media_preview);
+        setContentView(R.layout.mp_activity_media_preview);
 
-        mActionBar = getSupportActionBar();
+        mActionBar = getToolbar();
+
+        RelativeLayout.LayoutParams layoutParams =
+                (RelativeLayout.LayoutParams) mActionBar.getLayoutParams();
+        layoutParams.topMargin = getStatusBarHeight();
+
+        ViewGroup.MarginLayoutParams layoutParams1 =
+                (ViewGroup.MarginLayoutParams) findViewById(R.id.root).getLayoutParams();
+        layoutParams1.bottomMargin = getNavBarHeight();
 
         mViewPager = (ViewPager) findViewById(R.id.view_pager);
         mSizeTv = (TextView) findViewById(R.id.size_tv);
         mIndexCb = (CheckBox) findViewById(R.id.index_cb);
+        mMediaToolbar = findViewById(R.id.mp_toolbar);
 
         Intent intent = getIntent();
-        mMedias = (ArrayList<Media>) intent.getSerializableExtra("medias");
-        mSelectedMedias = (ArrayList<Media>) intent
-                .getSerializableExtra("selectedMedias");
-        mPosition = intent.getIntExtra("position", 0);
+        mMedias = (ArrayList<Media>) intent.getSerializableExtra(KEY_MEDIAS);
+        mSelectedMedias = (ArrayList<Media>) intent.getSerializableExtra(KEY_SELECTED_MEDIAS);
+        mPosition = intent.getIntExtra(KEY_POSITION, 0);
 
         mPagerAdapter = new MediaPagerAdapter(this, mMedias);
         mPagerAdapter.setOnMediaTapListener(this);
@@ -72,9 +92,32 @@ public class MediaPreviewActivity extends BaseActivity implements
         updateIndex();
     }
 
+    @Override
+    protected boolean toolbarOverlay() {
+        return true;
+    }
+
+    @Override
+    protected boolean notDisplayStatusbar() {
+        return false;
+    }
+
+    @Override
+    protected boolean useDefaultSystemBar() {
+        return false;
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        }
+    }
+
     private void updateTitle() {
-        mActionBar.setTitle(getString(R.string.mp_preview_format_two, mPosition + 1,
-                mMedias.size()));
+        mActionBar.setTitle(
+                getString(R.string.mp_preview_format_two, mPosition + 1, mMedias.size()));
     }
 
     private void updateSize() {
@@ -86,8 +129,9 @@ public class MediaPreviewActivity extends BaseActivity implements
     }
 
     private boolean contains(Media media) {
-        if (mSelectedMedias == null)
+        if (mSelectedMedias == null) {
             return false;
+        }
 
         return mSelectedMedias.contains(media);
     }
@@ -106,8 +150,7 @@ public class MediaPreviewActivity extends BaseActivity implements
     }
 
     private Spanned getColoredText(String text, String color) {
-        return Html.fromHtml(String.format("<font color='%1$s'>%2$s</font>",
-                color, text));
+        return Html.fromHtml(String.format("<font color='%1$s'>%2$s</font>", color, text));
     }
 
     @Override
@@ -158,13 +201,101 @@ public class MediaPreviewActivity extends BaseActivity implements
 
     @Override
     public void onMediaTap(View view, float x, float y, int position) {
-        onBackPressed();
+        toggleStatusBar();
+    }
+
+    private void hideBars() {
+        mActionBar.setVisibility(View.INVISIBLE);
+        mActionBar.startAnimation(
+                AnimationUtils.loadAnimation(this, R.anim.iam007_translate_up_out));
+        mMediaToolbar.setVisibility(View.INVISIBLE);
+        mMediaToolbar.startAnimation(
+                AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
+        requestStatusBarVisibility(false);
+    }
+
+    private void showBars() {
+        mActionBar.setVisibility(View.VISIBLE);
+        mActionBar.startAnimation(
+                AnimationUtils.loadAnimation(this, R.anim.iam007_translate_up_in));
+        mMediaToolbar.setVisibility(View.VISIBLE);
+        mMediaToolbar.startAnimation(
+                AnimationUtils.loadAnimation(this, android.R.anim.fade_in));
+        requestStatusBarVisibility(true);
+    }
+
+    // 状态栏是否隐藏，低于4.1版本使用
+    private boolean mStatusBarHiden = false;
+
+    public void toggleStatusBar() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            if (mStatusBarHiden) {
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
+                        WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+                showBars();
+            } else {
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                hideBars();
+            }
+            mStatusBarHiden = !mStatusBarHiden;
+        } else {
+            toggleHideyBar();
+        }
+    }
+
+    private void toggleHideyBar() {
+
+        // BEGIN_INCLUDE (get_current_ui_flags)
+        // The UI options currently enabled are represented by a bitfield.
+        // getSystemUiVisibility() gives us that bitfield.
+        int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
+        int newUiOptions = uiOptions;
+        // END_INCLUDE (get_current_ui_flags)
+        // BEGIN_INCLUDE (toggle_ui_flags)
+        boolean isImmersiveModeEnabled =
+                ((uiOptions | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY) == uiOptions);
+        if (isImmersiveModeEnabled) {
+            showBars();
+        } else {
+            hideBars();
+        }
+
+        // Navigation bar hiding:  Backwards compatible to ICS.
+        // if (Build.VERSION.SDK_INT >= 14) {
+        //     newUiOptions ^= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        // }
+
+        // Status bar hiding: Backwards compatible to Jellybean
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            newUiOptions ^= View.SYSTEM_UI_FLAG_FULLSCREEN;
+        }
+
+        // Immersive mode: Backward compatible to KitKat.
+        // Note that this flag doesn't do anything by itself, it only augments the behavior
+        // of HIDE_NAVIGATION and FLAG_FULLSCREEN.  For the purposes of this sample
+        // all three flags are being toggled together.
+        // Note that there are two immersive mode UI flags, one of which is referred to as "sticky".
+        // Sticky immersive mode differs in that it makes the navigation and status bars
+        // semi-transparent, and the UI flag does not get cleared when the user interacts with
+        // the screen.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            newUiOptions ^= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        }
+
+        if (isImmersiveModeEnabled) {
+            newUiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
+        }
+
+        LogUtil.d("options:" + newUiOptions);
+        getWindow().getDecorView().setSystemUiVisibility(newUiOptions);
+        //END_INCLUDE (set_ui_flags)
     }
 
     private void setCallback(int resultCode) {
         Intent intent = new Intent();
         Bundle bundle = new Bundle();
-        bundle.putSerializable("selectedMedias", mSelectedMedias);
+        bundle.putSerializable(KEY_SELECTED_MEDIAS, mSelectedMedias);
         intent.putExtras(bundle);
         setResult(resultCode, intent);
     }
@@ -174,8 +305,7 @@ public class MediaPreviewActivity extends BaseActivity implements
         Media media = mMedias.get(position);
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.fromFile(new File(media.getData())),
-                "video/*");
+        intent.setDataAndType(Uri.fromFile(new File(media.getData())), "video/*");
         startActivity(intent);
     }
 
